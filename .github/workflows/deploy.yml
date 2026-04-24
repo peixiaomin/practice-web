@@ -5,20 +5,17 @@ on:
     branches: [main]
 
 jobs:
-  build-and-deploy:
+  build-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       # 构建 Docker 镜像
-      - name: Build Docker image
+      - name: Build Docker Image
         run: docker build -t vue-app .
 
-      # 上传镜像 → 保存成压缩包
-      - name: Save image
-        run: docker save -o vue-app.tar vue-app
-
-      # 传到你的云服务器
+      # 推送到服务器（正确写法！）
       - name: Deploy to Server
         uses: appleboy/ssh-action@master
         with:
@@ -26,22 +23,19 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           script: |
-            cd /root
-            rm -rf vue-app.tar
-          scp_source: vue-app.tar
-          scp_target: /root/
-
-      # 服务器加载镜像 + 重启
-      - name: Run Container
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
-          script: |
-            docker load -i /root/vue-app.tar
+            # 删除旧容器
             docker stop vue-app || true
             docker rm vue-app || true
+
+            # 删除旧镜像
+            docker rmi vue-app || true
+
+            # 拉新代码并构建
+            cd /root || mkdir /root
+            git clone https://github.com/peixiaomin/practice-web.git temp || cd temp && git pull
+            docker build -t vue-app temp/.
+
+            # 启动
             docker run -d \
               --name vue-app \
               --restart always \
