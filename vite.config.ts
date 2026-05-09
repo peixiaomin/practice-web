@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
-import { copyFileSync, existsSync } from 'node:fs'
+import { copyFileSync } from 'node:fs'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -17,9 +17,7 @@ export default defineConfig({
     {
       name: 'copy-nojekyll',
       closeBundle() {
-        if (existsSync('.nojekyll')) {
-          copyFileSync('.nojekyll', 'dist/.nojekyll')
-        }
+        try { copyFileSync('.nojekyll', 'dist/.nojekyll') } catch {}
         copyFileSync('dist/index.html', 'dist/404.html')
       },
     },
