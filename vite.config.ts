@@ -1,10 +1,11 @@
 import { fileURLToPath, URL } from 'node:url'
-import { copyFileSync } from 'node:fs'
+import { copyFileSync, existsSync } from 'node:fs'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -12,10 +13,13 @@ export default defineConfig({
     vue(),
     vueJsx(),
     vueDevTools(),
+    tailwindcss(),
     {
       name: 'copy-nojekyll',
       closeBundle() {
-        copyFileSync('.nojekyll', 'dist/.nojekyll')
+        if (existsSync('.nojekyll')) {
+          copyFileSync('.nojekyll', 'dist/.nojekyll')
+        }
         copyFileSync('dist/index.html', 'dist/404.html')
       },
     },
