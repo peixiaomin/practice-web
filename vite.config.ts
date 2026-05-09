@@ -18,7 +18,7 @@ export default defineConfig({
       name: 'copy-nojekyll',
       closeBundle() {
         try { copyFileSync('.nojekyll', 'dist/.nojekyll') } catch {}
-        copyFileSync('dist/index.html', 'dist/404.html')
+        try { copyFileSync('dist/index.html', 'dist/404.html') } catch {}
       },
     },
   ],
